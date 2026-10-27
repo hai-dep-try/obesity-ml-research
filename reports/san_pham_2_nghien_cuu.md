@@ -1,46 +1,33 @@
 # Sản phẩm 2 — Nghiên cứu
 
-## Mục tiêu
+## Bài toán
+Phân loại đa lớp mức độ béo phì (`NObeyesdad`) trên dataset Obesity Levels; tái lập pipeline và bảng kết quả của Maulana et al. (2024) trên CPU local.
 
-Tái lập thí nghiệm phân loại mức độ béo phì theo Maulana et al. (2024) trên **CPU local**, dùng dataset Kaggle Obesity Levels, lưu metrics/figures vào `results/`, rồi đẩy code lên GitHub.
+## Phương pháp
+- Preprocess theo Table 2 bài báo (`src/preprocess.py`)
+- Baseline: LR, KNN, RF, Naive Bayes (GridSearchCV, Stratified 5-fold)
+- Main: CatBoost với siêu tham số Table 3 (`lr=0.05`, `depth=8`, `l2_leaf_reg=5`, `iterations=300`)
+- Đánh giá: accuracy / precision / recall / F1 (weighted), confusion matrix, feature importance
 
-## Thiết lập thí nghiệm
+## Kết quả local (test set)
 
-- Preprocess: `src/preprocess.py` (Table 2 paper) — impute, one-hot Gender/CAEC/CALC/MTRANS, StandardScaler, split **80:20 stratified** (`random_state=42`)
-- Train/eval: `src/train.py`, `src/evaluate.py`
-- Lệnh: `python -m src.train`
-- CatBoost dùng hyperparameters tốt nhất paper: `lr=0.05`, `depth=8`, `l2_leaf_reg=5`, `iterations=300`
-- Baseline: GridSearchCV + stratified 5-fold (LR, KNN, RF, Naive Bayes)
-
-## Kết quả local (CPU)
-
-| Model | Acc local (%) | Acc paper (%) | Δ (pp) |
-|---|---:|---:|---:|
-| **CatBoost** | **95.51** | 95.98 | −0.47 |
-| Random Forest | 94.56 | 95.04 | −0.48 |
+| Model | Acc (%) | Paper Acc (%) | Δ (pp) |
+|-------|---------|---------------|--------|
+| CatBoost | 95.51 | 95.98 | -0.47 |
+| Random Forest | 94.56 | 95.04 | -0.48 |
+| KNN | 87.71 | 88.18 | -0.47 |
 | Logistic Regression | 93.14 | 65.48 | +27.66 |
-| KNN | 87.71 | 88.18 | −0.47 |
-| Naive Bayes | 52.01 | 94.07* | −42.06 |
+| Naive Bayes | 52.01 | 94.07 | -42.06 |
 
-\* Table 4 paper ghi NB accuracy 94.07% nhưng precision/recall/F1 (~72/64/66) không nhất quán với accuracy — kết quả local phản ánh NB yếu trên feature đã scale/one-hot.
+Chi tiết: `results/all_results.csv`, `results/paper_comparison.csv`, `results/figures/`.
 
-Nguồn: `results/model_comparison.csv`, `results/main_results.csv`, `results/baseline_results.csv`.
+## Nhận xét
+- CatBoost vẫn là mô hình tốt nhất trong thí nghiệm local, sát paper.
+- RF và KNN cũng sát Table 4.
+- LR cao hơn paper; NB thấp hơn nhiều — cần ghi nhận khác biệt preprocess/hyperparam khi viết thảo luận.
 
-## Phân tích
-
-- Confusion matrix: `results/figures/catboost_confusion_matrix.png`
-- Feature importance: `results/figures/catboost_feature_importance.png` / `results/feature_importance_catboost.csv`
-- CatBoost vẫn là model tốt nhất local, sát paper (~0.5 điểm phần trăm)
-- So sánh biểu đồ: `results/figures/model_comparison.png`
-
-## Giới hạn
-
-- Random seed / phiên bản thư viện / lưới hyperparameter baseline khác paper → lệch nhẹ
-- Dataset ~77% synthetic (SMOTE) — generalization thực tế cần thận trọng
-- Chạy CPU local; không dùng Kaggle kernel/GPU
-
-## Tài liệu tham chiếu
-
-1. Maulana et al. (2024), Infolitika Journal of Data Science — `docs/Predicting Obesity Levels with High Accuracy Insights from a CatBoost .pdf`
-2. Dataset: https://www.kaggle.com/datasets/fatemehmehrparvar/obesity-levels
-3. Đề bài môn: `docs/AI_Midterm_Project.pdf`
+## Cách tái chạy
+```bash
+python -m src.download_data
+python -m src.train
+```
