@@ -12,22 +12,29 @@ Phân loại đa lớp mức độ béo phì (`NObeyesdad`) trên dataset Obesit
 ## Kết quả local (test set)
 
 | Model | Acc (%) | Paper Acc (%) | Δ (pp) |
-|-------|---------|---------------|--------|
-| CatBoost | 95.51 | 95.98 | -0.47 |
-| Random Forest | 94.56 | 95.04 | -0.48 |
-| KNN | 87.71 | 88.18 | -0.47 |
+|-------|--------:|--------------:|-------:|
+| **CatBoost** | **95.51** | 95.98 | −0.47 |
+| Random Forest | 94.33 | 95.04 | −0.71 |
 | Logistic Regression | 93.14 | 65.48 | +27.66 |
-| Naive Bayes | 52.01 | 94.07 | -42.06 |
+| KNN | 84.40 | 88.18 | −3.78 |
+| Naive Bayes | 52.25 | 94.07* | −41.82 |
 
-Chi tiết: `results/all_results.csv`, `results/paper_comparison.csv`, `results/figures/`.
+\* Table 4 paper ghi NB Acc 94.07% nhưng Precision/Recall/F1 (~72/64/66) không nhất quán với accuracy.
+
+Chi tiết: `results/all_results.csv`, `results/main_results.csv`, `results/figures/`.
 
 ## Nhận xét
-- CatBoost vẫn là mô hình tốt nhất trong thí nghiệm local, sát paper.
-- RF và KNN cũng sát Table 4.
-- LR cao hơn paper; NB thấp hơn nhiều — cần ghi nhận khác biệt preprocess/hyperparam khi viết thảo luận.
+- CatBoost vẫn tốt nhất local, sát paper (lệch −0.47 pp).
+- RF gần Table 4; KNN hơi thấp hơn paper.
+- LR cao hơn paper; NB thấp hơn nhiều trên feature đã scale/one-hot — ghi nhận khi thảo luận.
+- Chạy CPU local; không dùng Kaggle kernel/GPU.
 
 ## Cách tái chạy
 ```bash
 python -m src.download_data
 python -m src.train
 ```
+
+## Tài liệu
+1. Maulana et al. (2024) — `docs/Predicting Obesity Levels with High Accuracy Insights from a CatBoost .pdf`
+2. Đề bài: `docs/AI_Midterm_Project.pdf`
