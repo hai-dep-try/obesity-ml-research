@@ -1,0 +1,6 @@
+model,accuracy,precision,recall,f1,accuracy_pct,precision_pct,recall_pct,f1_pct,best_params,paper_accuracy,cv_accuracy
+CatBoost,95.51,95.6,95.51,95.53,95.51,95.6,95.51,95.53,"{'model__learning_rate': 0.05, 'model__depth': 8, 'model__l2_leaf_reg': 5, 'model__iterations': 300}",95.98,
+Random Forest,94.56,95.07,94.56,94.67,94.56,95.07,94.56,94.67,"{'model__max_depth': None, 'model__min_samples_split': 2, 'model__n_estimators': 300}",95.04,94.43
+Logistic Regression,93.14,93.12,93.14,93.1,93.14,93.12,93.14,93.1,{'model__C': 10.0},65.48,93.66
+KNN,87.71,87.29,87.71,87.24,87.71,87.29,87.71,87.24,"{'model__metric': 'manhattan', 'model__n_neighbors': 3, 'model__weights': 'distance'}",88.18,87.74
+Naive Bayes,53.66,57.13,53.66,50.41,53.66,57.13,53.66,50.41,{'model__var_smoothing': 1e-06},94.07,51.6

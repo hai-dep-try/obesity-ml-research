@@ -1,0 +1,16 @@
+{
+  "paper": "Maulana et al. 2024 \u2014 Predicting Obesity Levels with CatBoost",
+  "paper_catboost_accuracy_pct": 95.98,
+  "local_catboost_accuracy_pct": 95.51,
+  "delta_pp": -0.47,
+  "split": "80:20 stratified",
+  "random_state": 42,
+  "catboost_params": {
+    "learning_rate": 0.05,
+    "depth": 8,
+    "l2_leaf_reg": 5,
+    "iterations": 300
+  },
+  "tune_baselines": true,
+  "tune_catboost": false
+}

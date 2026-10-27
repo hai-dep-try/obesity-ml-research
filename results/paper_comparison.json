@@ -1,0 +1,6 @@
+{
+  "paper": "Maulana et al. (2024) Predicting Obesity Levels with CatBoost",
+  "paper_catboost_accuracy_pct": 95.98,
+  "ours_catboost_accuracy_pct": 95.51,
+  "delta_pp": -0.47
+}

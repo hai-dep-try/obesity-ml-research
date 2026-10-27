@@ -1,2 +1,5 @@
-model,metric,value
-placeholder,accuracy,
+model,accuracy,precision,recall,f1,accuracy_pct,precision_pct,recall_pct,f1_pct,cv_accuracy_pct,paper_accuracy_pct,delta_accuracy_pp
+LogisticRegression,93.14,93.12,93.14,93.1,93.14,93.12,93.14,93.1,93.66,65.48,27.66
+KNN,84.4,83.76,84.4,83.52,84.4,83.76,84.4,83.52,83.35,88.18,-3.78
+RandomForest,94.33,94.8,94.33,94.44,94.33,94.8,94.33,94.44,94.31,95.04,-0.71
+NaiveBayes,52.25,55.98,52.25,48.53,52.25,55.98,52.25,48.53,50.24,94.07,-41.82

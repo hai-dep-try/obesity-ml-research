@@ -1,0 +1,6 @@
+model,accuracy_pct,paper_accuracy_pct,delta_pp
+Logistic Regression,93.14,65.48,27.66
+KNN,87.71,88.18,-0.47
+Random Forest,94.56,95.04,-0.48
+Naive Bayes,52.01,94.07,-42.06
+CatBoost,95.51,95.98,-0.47

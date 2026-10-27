@@ -1,0 +1,6 @@
+model,accuracy,precision,recall,f1,best_params,accuracy_pct,precision_pct,recall_pct,f1_pct,paper_accuracy_pct,delta_pp
+Logistic Regression,93.14,93.12,93.14,93.1,"{'model__C': 10.0, 'model__max_iter': 2000, 'model__solver': 'lbfgs'}",93.14,93.12,93.14,93.1,65.48,27.66
+KNN,87.71,87.29,87.71,87.24,"{'model__metric': 'manhattan', 'model__n_neighbors': 3, 'model__weights': 'distance'}",87.71,87.29,87.71,87.24,88.18,-0.47
+Random Forest,94.56,95.07,94.56,94.67,"{'model__max_depth': None, 'model__min_samples_split': 2, 'model__n_estimators': 300}",94.56,95.07,94.56,94.67,95.04,-0.48
+Naive Bayes,52.01,55.51,52.01,48.25,{},52.01,55.51,52.01,48.25,94.07,-42.06
+CatBoost,95.51,95.6,95.51,95.53,"{'learning_rate': 0.05, 'depth': 8, 'l2_leaf_reg': 5, 'iterations': 300}",95.51,95.6,95.51,95.53,95.98,-0.47

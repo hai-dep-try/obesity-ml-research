@@ -1,29 +1,32 @@
 # data/
 
-## Dataset
+Dataset **Obesity Levels** (Kaggle: `fatemehmehrparvar/obesity-levels`).
 
-- Source: [Obesity Levels (Kaggle)](https://www.kaggle.com/datasets/fatemehmehrparvar/obesity-levels)
-- Local files (gitignored):
-  - `obesity.csv` — canonical path used by `src/preprocess.py`
-  - `ObesityDataSet_raw_and_data_sinthetic.csv` — original Kaggle filename
-- ~2111 rows × 17 columns; target: `NObeyesdad` (7 classes)
+- File cục bộ (gitignore): `obesity.csv` và `ObesityDataSet_raw_and_data_sinthetic.csv`
+- Shape: 2111 dòng × 17 cột; nhãn: `NObeyesdad` (7 lớp)
+- **Không** commit dump raw lớn — tải lại local khi cần
 
-## Download
-
-From repo root:
+## Tải dữ liệu
 
 ```bash
 pip install -r requirements.txt
 python -m src.download_data
 ```
 
-Equivalent:
+Hoặc thủ công:
 
 ```python
 import kagglehub
+from pathlib import Path
+import shutil
 
 path = kagglehub.dataset_download("fatemehmehrparvar/obesity-levels")
 print("Path to dataset files:", path)
+
+src = Path(path) / "ObesityDataSet_raw_and_data_sinthetic.csv"
+dst = Path("data")  # chạy từ repo root
+shutil.copy2(src, dst / "ObesityDataSet_raw_and_data_sinthetic.csv")
+shutil.copy2(src, dst / "obesity.csv")
 ```
 
-Do **not** commit raw CSV dumps — regenerate with the script if missing.
+Lần đầu Kaggle có thể yêu cầu xác thực (`kagglehub` / Kaggle API credentials).
