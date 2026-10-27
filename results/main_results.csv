@@ -1,2 +1,2 @@
-model,accuracy,precision,recall,f1,accuracy_pct,precision_pct,recall_pct,f1_pct,best_params,paper_accuracy
-CatBoost,95.51,95.6,95.51,95.53,95.51,95.6,95.51,95.53,"{'model__learning_rate': 0.05, 'model__depth': 8, 'model__l2_leaf_reg': 5, 'model__iterations': 300}",95.98
+model,accuracy,precision,recall,f1,accuracy_pct,precision_pct,recall_pct,f1_pct,paper_accuracy_pct,delta_accuracy_pp
+CatBoost,95.51,95.6,95.51,95.53,95.51,95.6,95.51,95.53,95.98,-0.47

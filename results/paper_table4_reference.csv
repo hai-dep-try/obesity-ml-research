@@ -1,0 +1,6 @@
+model,accuracy,precision,recall,f1
+CatBoost,95.98,96.08,95.98,96.0
+LogisticRegression,65.48,68.6,65.48,66.6
+KNN,88.18,91.25,88.18,89.07
+RandomForest,95.04,95.04,95.04,95.0
+NaiveBayes,94.07,72.13,64.07,66.17

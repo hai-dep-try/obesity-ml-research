@@ -38,14 +38,15 @@ python -m src.train
 python -m src.train --tune-catboost
 ```
 
-Kết quả mong đợi (paper Table 4, test set): CatBoost ~95.98% accuracy; so sánh LR / KNN / RF / Naive Bayes.
+Kết quả local (CPU, seed=42): **CatBoost 95.51%** (paper 95.98%); RF 94.56%; LR 93.14%; KNN 87.71%; NB 53.66%.
 
 Output chính:
 
-- `results/baseline_results.csv`, `results/main_results.csv`
-- `results/all_models_results.csv`, `results/paper_comparison.csv`
-- `results/figures/catboost_confusion_matrix.png`
-- `results/figures/catboost_feature_importance.png`
+- `results/baseline_results.csv`, `results/main_results.csv`, `results/comparison_results.csv`
+- `results/paper_comparison.json`, `results/best_params.json`
+- `results/figures/confusion_matrix_catboost.png`
+- `results/figures/feature_importance_catboost.png`
+- `results/figures/model_comparison.png`
 
 ## Workflow
 
