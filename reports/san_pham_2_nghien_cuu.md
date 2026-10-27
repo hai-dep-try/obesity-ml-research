@@ -1,47 +1,50 @@
 # Sản phẩm 2 — Nghiên cứu
 
-## 1. Bài toán
+## Mục tiêu
+Tái lập thí nghiệm Maulana et al. (2024): CatBoost vs các baseline trên dataset Obesity Levels; chạy trên **CPU local**, lưu kết quả vào `results/`.
 
-Phân loại 7 mức độ béo phì (`NObeyesdad`) từ đặc trưng nhân khẩu + thói quen ăn uống / vận động (dataset Obesity Levels, 2111×17).
+## Dữ liệu & preprocess
+- Nguồn: Kaggle `fatemehmehrparvar/obesity-levels` (`python -m src.download_data`)
+- Pipeline: `src/preprocess.py` (Table 2): impute mean/mode, one-hot Gender/CAEC/CALC/MTRANS, binary yes/no→0/1, StandardScaler, split 80:20 stratified, `random_state=42`
+- Train 1688 / Test 423 mẫu; 27 feature sau encode
 
-## 2. Phương pháp tái lập
+## Mô hình
+| Vai trò | Model |
+|--------|--------|
+| Main | CatBoost (`lr=0.05, depth=8, l2_leaf_reg=5, iterations=300`) |
+| Baseline | Logistic Regression, KNN, Random Forest, Naive Bayes (GridSearchCV + Stratified 5-fold) |
 
-Theo Maulana et al. (2024):
+Chạy: `python -m src.train`  
+(Tuỳ chọn lưới nhỏ CatBoost: `python -m src.train --tune-catboost`)
 
-1. Preprocess (`src/preprocess.py`): impute, one-hot, binary encode, StandardScaler, split 80:20 stratified (`RANDOM_STATE=42`)
-2. Baselines: Logistic Regression, KNN, Random Forest, Naive Bayes (grid search + Stratified 5-fold)
-3. Main: CatBoost với hyperparam Table 3 (`lr=0.05`, `depth=8`, `l2_leaf_reg=5`, `iterations=300`)
-4. Đánh giá: accuracy / precision / recall / F1 (weighted); confusion matrix; feature importance → `results/`
+## Kết quả (CPU local)
 
-Chạy (CPU local): `python -m src.train`
+Nguồn: `results/all_results.csv`, `results/paper_comparison.csv` (sau `python -m src.train`).
 
-## 3. Kết quả thực nghiệm (local CPU)
+| Model | Paper Acc (%) | Repo Acc (%) | Δ (pp) | Repo F1 (%) |
+|-------|---------------|--------------|--------|-------------|
+| CatBoost | 95.98 | **95.51** | −0.47 | 95.53 |
+| Logistic Regression | 65.48 | 93.14 | +27.66 | 93.10 |
+| KNN | 88.18 | 84.40 | −3.78 | 83.52 |
+| Random Forest | 95.04 | 94.33 | −0.71 | 94.44 |
+| Naive Bayes | 94.07 | 52.25 | −41.82 | 48.53 |
 
-| Model | Acc repo (%) | Acc paper (%) | Δ (pp) | F1 repo (%) |
-|---|---:|---:|---:|---:|
-| **CatBoost** | **95.51** | 95.98 | −0.47 | 95.53 |
-| Random Forest | 94.33 | 95.04 | −0.71 | 94.44 |
-| Logistic Regression | 93.14 | 65.48 | +27.66 | 93.10 |
-| KNN | 84.40 | 88.18 | −3.78 | 83.52 |
-| Naive Bayes | 52.25 | 94.07 | −41.82 | 48.53 |
+Hình: `results/figures/confusion_matrix_catboost.png`, `feature_importance_catboost.png`, `model_comparison.png`.
 
-Nguồn CSV: `results/paper_comparison.csv`, `results/main_results.csv`, `results/baseline_results.csv`.
+### Feature importance (top)
+Weight ≫ Height ≫ FCVC, Age, Gender — khớp hướng paper (Weight/Height/Gender nổi bật). Chi tiết: `results/feature_importance_catboost.csv`.
 
-Hình:
+## Thảo luận
+- **CatBoost** gần paper (−0.47 pp): tái lập thành công trên CPU với hyperparam Table 3.
+- **Random Forest** cũng sát paper (−0.71 pp).
+- **Logistic Regression** cao hơn paper rõ: có thể do encode/scale hoặc lưới `C` khác paper (paper không công bố đủ chi tiết baseline).
+- **Naive Bayes** thấp hơn paper nhiều: GaussianNB trên vector one-hot + scaled liên tục thường kém; paper ghi Acc 94.07 nhưng Precision/Recall/F1 ~66% — có thể khác metric/setup.
+- Dataset ~77% synthetic (SMOTE) — hạn chế khái quát hóa.
 
-- `results/figures/catboost_confusion_matrix.png`
-- `results/figures/catboost_feature_importance.png`
-- `results/figures/model_comparison.png`
+## Kết luận
+Trên setup local này, **CatBoost dẫn đầu (95.51%)**, sát mức 95.98% của paper, và vượt các baseline trừ khi so với LR đã được tune mạnh trên feature đã scale. Pipeline + số liệu đủ để nộp Research Track kèm `ai_log/`.
 
-## 4. Thảo luận
-
-- **CatBoost** gần paper (−0.47 pp): cùng hyperparam Table 3; lệch nhỏ có thể do seed / chi tiết encode binary / thứ tự cột one-hot.
-- **Random Forest** cũng gần paper (−0.71 pp).
-- **Logistic Regression** cao hơn paper nhiều (+27.66): có thể paper dùng cấu hình/solver khác hoặc preprocess khác trên biến binary.
-- **Naive Bayes** thấp hơn rõ (−41.82): GaussianNB trên features đã one-hot + scale thường kém; paper có thể dùng biến thể / encoding khác.
-- Feature importance: Weight / Height / Gender thường đứng đầu (liên quan BMI), phù hợp Figure 3 của paper.
-- Hạn chế dataset: ~77% synthetic (SMOTE); cần thận trọng khi tổng quát hóa.
-
-## 5. Tài liệu tham chiếu
-
-Maulana, A., Afidh, R. P. F., Maulydia, N. B., Idroes, G. M., & Rahimah, S. (2024). Predicting Obesity Levels with High Accuracy: Insights from a CatBoost Machine Learning Model. *Infolitika Journal of Data Science*, 2(1). DOI: 10.60084/ijds.v2i1.195
+## Tài liệu tham chiếu
+1. Maulana et al. (2024) — `docs/Predicting Obesity Levels with High Accuracy Insights from a CatBoost .pdf`
+2. Đề bài — `docs/AI_Midterm_Project.pdf`
+3. Dataset Kaggle Obesity Levels
