@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Keep data/ tracked as a folder, but ignore heavy raw dumps
+data/*
+!data/.gitkeep
+!data/README.md
