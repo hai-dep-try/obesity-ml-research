@@ -34,12 +34,12 @@ Hình: `results/figures/confusion_matrix_catboost.png`, `feature_importance_catb
 ### Feature importance (top)
 Weight ≫ Height ≫ FCVC, Age, Gender — khớp hướng paper (Weight/Height/Gender nổi bật). Chi tiết: `results/feature_importance_catboost.csv`.
 
-## Thảo luận
+## Thảo luận & Phản biện khoa học
 - **CatBoost** gần paper (−0.47 pp): tái lập thành công trên CPU với hyperparam Table 3.
 - **Random Forest** cũng sát paper (−0.71 pp).
-- **Logistic Regression** cao hơn paper rõ: có thể do encode/scale hoặc lưới `C` khác paper (paper không công bố đủ chi tiết baseline).
-- **Naive Bayes** thấp hơn paper nhiều: GaussianNB trên vector one-hot + scaled liên tục thường kém; paper ghi Acc 94.07 nhưng Precision/Recall/F1 ~66% — có thể khác metric/setup.
-- Dataset ~77% synthetic (SMOTE) — hạn chế khái quát hóa.
+- **Phát hiện mâu thuẫn toán học ở Naive Bayes trong bài báo gốc:** Trong Table 4 của bài báo, Naive Bayes có Weighted Recall = 64.07% và F1 = 66.17%, nhưng Accuracy lại ghi 94.07%. Về mặt toán học trong multiclass, Weighted Recall luôn bằng Accuracy. Tác giả nhiều khả năng đã mắc lỗi đánh máy (Typo từ 64.07% thành 94.07%). Thực nghiệm thực tế của chúng ta đạt 52.25%, phản ánh đúng hạn chế của GaussianNB khi giả định độc lập và chuẩn bị vi phạm trên biến One-Hot.
+- **Logistic Regression cao hơn bài báo rõ rệt (93.14% vs 65.48%):** Bài báo có thể đã dùng `max_iter=100` mặc định của Scikit-learn (dẫn tới thuật toán chưa hội tụ và dừng sớm). Khi chuẩn hóa đúng và tăng `max_iter=2000`, LR đạt trên 93%.
+- Chi tiết phân tích chuyên sâu: xem báo cáo riêng tại `reports/ket_luan_sau_khi_thuc_nghiem_tu_bai_bao_nay.md`.
 
 ## Kết luận
 Trên setup local này, **CatBoost dẫn đầu (95.51%)**, sát mức 95.98% của paper, và vượt các baseline trừ khi so với LR đã được tune mạnh trên feature đã scale. Pipeline + số liệu đủ để nộp Research Track kèm `ai_log/`.
