@@ -1,0 +1,28 @@
+{
+  "full": {
+    "units": 5000,
+    "lr": 0.1,
+    "epoch": 465,
+    "batch": 32,
+    "val_acc": 95.9,
+    "n_calls": 60,
+    "cols": [
+      "Gender",
+      "Age",
+      "Height",
+      "Weight",
+      "family_history_with_overweight",
+      "FAVC",
+      "FCVC",
+      "NCP",
+      "CAEC",
+      "SMOKE",
+      "CH2O",
+      "SCC",
+      "FAF",
+      "TUE",
+      "CALC",
+      "MTRANS"
+    ]
+  }
+}
