@@ -1,2 +1,5 @@
 feature_set,n_features,best_C,val_acc,accuracy,f1_weighted,sensitivity,specificity,brier,cv_acc_mean,cv_acc_sd
 full,16,100,96.85,96.02,96.03,96.02,99.36,0.0654,95.2,0.83
+chi2,5,1000,68.77,67.05,66.48,67.05,94.41,0.4285,68.35,1.71
+f_classify,5,10,37.85,34.66,30.83,34.66,88.58,0.7568,37.96,2.47
+mutual_info,5,10,64.35,58.14,56.63,58.14,92.83,0.5345,61.85,2.25

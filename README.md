@@ -43,7 +43,7 @@ Cấu trúc dự án được chuẩn hóa theo phong cách nghiên cứu tái l
 
 | Thư mục / Tệp | Vai trò & Nội dung chi tiết |
 | :--- | :--- |
-| [`src/`](src/) | Toàn bộ mã nguồn cốt lõi tái sử dụng: `preprocess.py`, `train.py`, `evaluate.py`, `download_data.py` |
+| [`src/`](src/) | Toàn bộ mã nguồn cốt lõi tái sử dụng: `preprocess.py`, `train.py`, `train_xgboost.py`, `analyze_models.py`, `select_features.py`, `evaluate.py`, `download_data.py` |
 | [`data/`](data/) | Dữ liệu cục bộ (được `.gitignore` bảo vệ, tự động tải qua script; xem [`data/README.md`](data/README.md)) |
 | [`notebooks/`](notebooks/) | Các sổ tay Jupyter chạy theo quy trình: `01_eda` $\rightarrow$ `02_baseline` $\rightarrow$ `03_main_model` |
 | [`results/`](results/) | Bảng số liệu thực nghiệm (`.csv`, `.json`) và các biểu đồ phân tích trực quan ([`results/figures/`](results/figures/)) |
@@ -85,8 +85,14 @@ python -m src.download_data
 # Tiền xử lý dữ liệu và kiểm tra cấu trúc đặc trưng
 python -m src.preprocess
 
-# Huấn luyện toàn bộ các mô hình Baseline và CatBoost
+# Huấn luyện bộ 5 mô hình theo bài báo Maulana et al. (2024)
 python -m src.train
+
+# Chạy đối chứng XGBoost (cấu hình của HoTuAn & GridSearchCV)
+python -m src.train_xgboost
+
+# Phân tích lỗi, độ tương quan mô hình & thí nghiệm phản biện BMI (Ablation Study)
+python -m src.analyze_models
 ```
 
 > [!IMPORTANT]
@@ -102,15 +108,18 @@ python -m src.train
 
 ## 📊 Kết Quả Thực Nghiệm Đối Chiếu (Local CPU vs. Paper Table 4)
 
-Kết quả thực nghiệm độc lập của nhóm trên tập kiểm thử ($N=423$, tỷ lệ 80:20 stratified, seed 42) đối chiếu trực tiếp với kết quả trong bài báo gốc:
+Kết quả thực nghiệm độc lập trên cùng tập kiểm thử chuẩn hóa ($N=423$, tỷ lệ Stratified 80:20, `random_state=42`):
 
-| Mô hình (Model) | Accuracy Paper (%) | Accuracy Local (%) | Độ lệch $\Delta$ (pp) | Recall Local (%) | F1-Score Local (%) | Ghi chú & Đánh giá |
-| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **CatBoost (Chính)** | **95.98** | **95.51** | **−0.47** | **95.51** | **95.53** | **Tái lập thành công vượt trội, dẫn đầu toàn diện** |
-| **Random Forest** | 95.04 | 94.33 | −0.71 | 94.33 | 94.44 | Bám sát bài báo, họ cây xử lý dữ liệu bảng rất tốt |
-| **Logistic Regression** | 65.48 | 93.14 | **+27.66** | 93.14 | 93.10 | Hội tụ khi `max_iter=2000` và scale chuẩn Z-score |
-| **KNN** | 88.18 | 84.40 | −3.78 | 84.40 | 83.52 | Khoảng cách bị ảnh hưởng bởi biến One-Hot |
-| **Naive Bayes** | ⚠️ 94.07 | 52.25 | **−41.82** | 52.25 | 48.53 | Vi phạm giả định độc lập & lỗi Typo trong bài báo |
+| Mô hình (Model) | Accuracy Paper (%) | Accuracy Local (%) | Độ lệch $\Delta$ (pp) | Recall Local (%) | F1-Score Local (%) | Số lỗi / 423 | Ghi chú & Đánh giá |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **CatBoost (Chính)** | **95.98** | **95.51** | **−0.47** | **95.51** | **95.53** | **19** | **Tái lập sát bài báo, mô hình gốc dẫn đầu** |
+| **XGBoost (Tuned)** *(Mở rộng)* | — | **95.51** | — | **95.51** | **95.55** | **19** | GridSearchCV (`lr=0.1, depth=4, n=200`) |
+| **XGBoost (HoTuAn)** *(Mở rộng)* | — | 94.56 | — | 94.56 | 94.61 | 23 | Cấu hình mặc định (`lr=0.1, depth=6, n=100`) |
+| **Random Forest** | 95.04 | 94.33 | −0.71 | 94.33 | 94.44 | 24 | Bám sát bài báo, họ cây xử lý dữ liệu bảng rất tốt |
+| **Logistic Regression** | 65.48 | 93.14 | **+27.66** | 93.14 | 93.10 | 29 | Hội tụ khi `max_iter=2000` và scale chuẩn Z-score |
+| **KNN** | 88.18 | 84.40 | −3.78 | 84.40 | 83.52 | 66 | Khoảng cách bị nhiễu bởi biến One-Hot |
+| **Naive Bayes** | ⚠️ 94.07 | 52.25 | **−41.82** | 52.25 | 48.53 | 202 | Vi phạm giả định độc lập & lỗi Typo trong bài báo |
+| **Soft Voting (CB + XGB + LR)** *(Thử nghiệm)* | — | **96.45** | — | **96.45** | **96.48** | **15** | Kết hợp mô hình cây + tuyến tính bù lỗi chéo |
 
 ---
 
@@ -118,14 +127,41 @@ Kết quả thực nghiệm độc lập của nhóm trên tập kiểm thử ($
 
 Toàn bộ biểu đồ được tự động sinh và lưu tại [`results/figures/`](results/figures/):
 
-| So sánh độ chính xác các mô hình | Ma trận nhầm lẫn CatBoost (95.51%) | Mức độ quan trọng của đặc trưng |
+| So sánh độ chính xác mở rộng | Ma trận nhầm lẫn CatBoost (95.51%) | Mức độ quan trọng của đặc trưng |
 | :---: | :---: | :---: |
-| ![Model Comparison](results/figures/model_comparison.png) | ![Confusion Matrix](results/figures/confusion_matrix_catboost.png) | ![Feature Importance](results/figures/feature_importance_catboost.png) |
-| *CatBoost và Random Forest áp đảo các thuật toán truyền thống* | *Phân loại xuất sắc cả 7 lớp, cực kỳ nhạy với béo phì nặng* | *Weight và Height chi phối mạnh nhất, kế đến FCVC, Age, Gender* |
+| ![Model Comparison](results/figures/model_comparison_extended.png) | ![Confusion Matrix](results/figures/confusion_matrix_catboost.png) | ![Feature Importance](results/figures/feature_importance_catboost.png) |
+| *CatBoost & XGBoost Tuned dẫn đầu nhóm mô hình đơn (95.51%); Soft Voting đạt 96.45%* | *Phân loại xuất sắc cả 7 lớp, cực kỳ nhạy với béo phì nặng* | *Weight và Height chi phối mạnh nhất, kế đến FCVC, Age, Gender* |
 
 ---
 
-## 🔬 Các Phát Hiện & Phản Biện Khoa Học Trọng Tâm
+## 🔍 Phân Tích Lỗi, Tương Quan Mô Hình & Phản Biện Luật BMI
+
+### 1. Các mô hình thường sai ở đâu? (Error Analysis)
+* **Điểm nghẽn chung ở ranh giới BMI = 25.0 (`Overweight_Level_I` $\leftrightarrow$ `Normal_Weight`):** Khi chỉ có `Weight` và `Height` rời rạc mà chưa có biến phi tuyến $BMI = W / H^2$, cả 3 mô hình mạnh nhất đều dồn phần lớn lỗi vào cặp liền kề này: chiếm **36.8%** lỗi của CatBoost (7/19 ca), **50.0%** lỗi của Random Forest (12/24 ca), **51.7%** lỗi của Logistic Regression (15/29 ca), và **43.5%** lỗi của XGBoost HoTuAn (10/23 ca).
+* **Lỗi đặc thù của KNN (66 lỗi):** F1 lớp `Normal_Weight` tụt xuống **55.32%** (bị nhầm sang `Insufficient_Weight` 12 ca, `Overweight_Level_I` 8 ca...) do các biến One-Hot thói quen sinh hoạt làm loãng khoảng cách Euclidean.
+* **Nghịch lý Naive Bayes (202 lỗi):** F1 ở 6 lớp đầu rất thấp (23%–54%), nhưng riêng **`Obesity_Type_III` đạt F1 = 99.22%** do nhóm béo phì nặng có đặc trưng đồng nhất và tách biệt hẳn về mặt phân phối.
+
+### 2. Mức độ tương quan & Khả năng bù lỗi giữa các mô hình
+* **Độ đồng thuận (Prediction Agreement):** `CatBoost` và `XGBoost Tuned` đồng thuận tới **96.69%** (chỉ khác nhau trên 14/423 mẫu — mỗi bên thắng đúng 7 mẫu). `CatBoost` với `Random Forest` đồng thuận **95.27%**.
+* **Tương quan lỗi ($r_{\text{err}}$):** `CatBoost` $\leftrightarrow$ `XGBoost Tuned` có $r_{\text{err}} = 0.61$, `CatBoost` $\leftrightarrow$ `RandomForest` là $0.59$ (cùng họ cây nên hay sai chung các mẫu sát biên BMI). Trong khi đó, `Logistic Regression` có tương quan lỗi thấp hơn rõ rệt với nhóm cây ($r_{\text{err}} = 0.30$ với XGBoost và $0.39$ với CatBoost). Nhờ tính bổ trợ này, **Soft Voting (CatBoost + XGBoost + LogisticRegression)** giảm số lỗi từ 19 xuống chỉ còn **15 ca (96.45%)**.
+
+| Tương quan đồng thuận dự đoán (%) & Tương quan lỗi ($r_{\text{err}}$) | Thí nghiệm Phản biện BMI (Ablation Study) |
+| :---: | :---: |
+| ![Correlation Heatmaps](results/figures/model_correlation_heatmaps.png) | ![BMI Ablation Study](results/figures/bmi_ablation_study.png) |
+
+### 3. Tại sao có `Weight` & `Height` mà không dùng công thức BMI luôn? (Ablation Study)
+Nhóm thực hiện kiểm chứng trực tiếp bằng thực nghiệm đối chứng (chi tiết tại [`results/bmi_ablation_results.csv`](results/bmi_ablation_results.csv)):
+
+| Kịch bản thử nghiệm | Phạm vi đánh giá | Accuracy (%) | F1-Score (%) | Số mẫu sai | Ý nghĩa khoa học |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **CatBoost (Bỏ `Weight` & `Height`)** | Test ($N=423$) | **82.98** | 82.96 | 72 | Chỉ dùng 14 biến thói quen/tuổi/giới tính vẫn dự báo rất tốt (random = 14.3%) |
+| **Luật cứng BMI WHO ($W/H^2$)** | Full ($N=2111$) | **91.95** | 91.90 | 170 | **Thua CatBoost!** Do SMOTE nội suy tuyến tính làm phi tuyến ngưỡng BMI (sót 56 ca Type III có BMI < 40) |
+| **CatBoost (Pipeline chuẩn)** | Test ($N=423$) | **95.51** | 95.53 | 19 | Tự động bù đắp độ lệch biên nhờ học kết hợp tín hiệu hành vi |
+| **CatBoost (+ Cột `BMI` tường minh)** | Test ($N=423$) | **98.82** | 98.82 | 5 | Xác nhận khi cung cấp đặc trưng phi tuyến tường minh, hiệu năng đạt gần tuyệt đối |
+
+---
+
+## 🔬 Các Phát Hiện & Phản Biện Khoa Học Từ Bài Báo Gốc
 
 1. **Phát hiện lỗi đánh máy (Typo) toán học ở Naive Bayes trong bài báo gốc:**
    * Trong bài báo gốc Table 4, mô hình Naive Bayes được ghi nhận có *Weighted Recall = 64.07%* nhưng *Accuracy = 94.07%*.
@@ -146,14 +182,15 @@ Toàn bộ biểu đồ được tự động sinh và lưu tại [`results/figu
 Nhóm tiến hành khảo sát mở rộng mô hình Deep Learning theo công trình của **Yagin et al. (2023)** (*Applied Sciences*):
 * **Kiến trúc mạng:** 3 tầng gồm `Dense(ReLU)` $\rightarrow$ `BatchNormalization` $\rightarrow$ `Softmax(7 lớp)`.
 * **Tối ưu siêu tham số Bayesian:** Sử dụng thuật toán Gaussian Process (`skopt.gp_minimize`) tối ưu đồng thời số neuron ẩn (`units`), tốc độ học (`lr`), số `epoch` và `batch_size`.
-* Mã nguồn triển khai: [`src/ann_model.py`](src/ann_model.py), [`src/bayes_search.py`](src/bayes_search.py), [`src/metrics_ann.py`](src/metrics_ann.py).
+* **Tuyển chọn 5 đặc trưng:** Chạy `python -m src.select_features --mode paper` để sinh `data/splits/top5_features.json` cùng các tập CSV đã lọc (`chi2`, `f_classify`, `mutual_info`).
+* Mã nguồn cốt lõi trên nhánh `main`: [`src/select_features.py`](src/select_features.py), [`src/lr_baseline.py`](src/lr_baseline.py), [`src/ann_model.py`](src/ann_model.py), [`src/benchmark_ann.py`](src/benchmark_ann.py), [`src/check_ann.py`](src/check_ann.py) (phần script `bayes_search.py` & `metrics_ann.py` lưu trên nhánh nghiên cứu `model-optimization-lead`).
 </details>
 
 <details>
-<summary><b>2. Thử nghiệm so sánh mô hình XGBoost — Click để xem</b></summary>
+<summary><b>2. Thử nghiệm đối chứng XGBoost (HoTuAn) — Click để xem</b></summary>
 
-* Thử nghiệm độc lập thuật toán Extreme Gradient Boosting (`XGBClassifier`) để so sánh đối chứng khả năng xử lý dữ liệu dạng bảng với CatBoost.
-* Mã nguồn: [`src/train_xgboost.py`](src/train_xgboost.py).
+* Đã chuẩn hóa script của HoTuAn từ nhánh `xgboost` vào [`src/train_xgboost.py`](src/train_xgboost.py) sử dụng chung pipeline [`src/preprocess.py`](src/preprocess.py) và [`src/evaluate.py`](src/evaluate.py).
+* Kết quả lưu tại [`results/xgboost_results.csv`](results/xgboost_results.csv) và [`results/figures/confusion_matrix_xgboost.png`](results/figures/confusion_matrix_xgboost.png) (`XGBoost_HoTuAn`: **94.56%**, `XGBoost_Tuned`: **95.51%**).
 </details>
 
 ---

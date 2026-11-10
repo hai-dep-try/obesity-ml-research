@@ -1,0 +1,17 @@
+feature,chi2_score,f_classify_score,mutual_info_score,in_paper_chi2,in_paper_f_classify,in_paper_mutual_info
+Gender,196.4192,97.9961,0.2105,False,False,False
+Age,361.7915,43.3797,0.5547,False,False,False
+Height,0.567,19.4937,0.4128,False,False,False
+Weight,8264.1923,1152.6641,1.2074,True,False,True
+family_history_with_overweight,63.3051,85.3176,0.1569,False,False,False
+FAVC,17.8395,28.54,0.069,True,True,True
+FCVC,34.8713,67.6623,0.3839,True,True,False
+NCP,17.9045,14.2196,0.2752,False,False,False
+CAEC,48.8417,52.9325,0.1511,False,False,False
+SMOKE,21.9739,3.7949,0.0373,False,False,True
+CH2O,8.4352,7.95,0.264,False,False,False
+SCC,68.7676,12.6329,0.0395,False,False,False
+FAF,54.4252,13.1999,0.2702,True,True,True
+TUE,12.3325,3.7945,0.272,False,True,False
+CALC,45.1371,22.9911,0.1008,True,True,True
+MTRANS,12.9249,15.3059,0.0525,False,False,False

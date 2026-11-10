@@ -1,0 +1,8 @@
+,CatBoost,XGBoost_Tuned,XGBoost_HoTuAn,RandomForest,LogisticRegression,KNN,NaiveBayes
+CatBoost,100.0,96.69,95.98,95.27,93.14,83.22,51.77
+XGBoost_Tuned,96.69,100.0,98.58,94.33,92.43,82.74,52.48
+XGBoost_HoTuAn,95.98,98.58,100.0,93.85,92.91,82.51,52.96
+RandomForest,95.27,94.33,93.85,100.0,93.14,85.34,52.72
+LogisticRegression,93.14,92.43,92.91,93.14,100.0,84.16,54.14
+KNN,83.22,82.74,82.51,85.34,84.16,100.0,56.03
+NaiveBayes,51.77,52.48,52.96,52.72,54.14,56.03,100.0
