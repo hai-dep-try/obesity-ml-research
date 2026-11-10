@@ -4,9 +4,9 @@
 [![Framework](https://img.shields.io/badge/Framework-CatBoost%20%7C%20Scikit--Learn-green.svg)](https://catboost.ai/)
 [![Dataset](https://img.shields.io/badge/Kaggle-Obesity%20Levels-orange.svg)](https://www.kaggle.com/datasets/fatemehmehrparvar/obesity-levels)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Track](https://img.shields.io/badge/INT3401-Research%20Track-red.svg)](#)
+[![Track](https://img.shields.io/badge/Artificial%20Intelligence-Research%20Track-red.svg)](#)
 
-> **Dự án Nghiên cứu Giữa kỳ — Học phần Trí tuệ Nhân tạo (INT3401)**  
+> **Dự án Nghiên cứu Giữa kỳ — Môn học Trí tuệ Nhân tạo (Research Track)**  
 > **Đơn vị:** Khoa Công nghệ Thông tin, Trường Đại học Công nghệ — Đại học Quốc gia Hà Nội (VNU-UET)  
 > **Nhóm thực hiện:** Nhóm 10  
 > **Nhiệm vụ trọng tâm:** Tái lập độc lập công trình khoa học quốc tế của **Maulana et al. (2024)**, so sánh chuyên sâu mô hình **CatBoost** với các mô hình baseline trên CPU cục bộ, đồng thời thực hiện phản biện học thuật và khảo sát mở rộng.
@@ -160,7 +160,7 @@ Nhóm tiến hành khảo sát mở rộng mô hình Deep Learning theo công tr
 
 ## 👥 Nhóm Tác Giả & Phân Công (Authors & Affiliations)
 
-**Nhóm 10 — Học phần Trí tuệ Nhân tạo (INT3401), Học kỳ I, Năm học 2026**  
+**Nhóm 10 — Môn học Trí tuệ Nhân tạo (Research Track)**  
 *Khoa Công nghệ Thông tin, Trường Đại học Công nghệ — Đại học Quốc gia Hà Nội (VNU-UET)*
 
 * **Thành viên nhóm:** Nhóm 10 ([`@hai-dep-try`](https://github.com/hai-dep-try), [`@HoTuAn2007`](https://github.com/HoTuAn2007), [`@chử minh`](https://github.com/chuducminnh))

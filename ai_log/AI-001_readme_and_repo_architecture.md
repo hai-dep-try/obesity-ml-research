@@ -3,7 +3,7 @@
 * **Mã nhật ký:** `AI-001`
 * **Thời gian:** 10/11/2026
 * **Công cụ AI:** OpenCode Assistant
-* **Người thực hiện:** Nhóm 10 — INT3401 Research Track
+* **Người thực hiện:** Nhóm 10 — Môn học Trí tuệ Nhân tạo (Research Track)
 
 ---
 
