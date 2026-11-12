@@ -26,11 +26,11 @@
     ]
   },
   "chi2": {
-    "units": 3987,
-    "lr": 5.416754583247461e-05,
-    "epoch": 628,
-    "batch": 21,
-    "val_acc": 0.0,
+    "units": 133,
+    "lr": 0.0006578067689734812,
+    "epoch": 75,
+    "batch": 30,
+    "val_acc": 78.55,
     "n_calls": 60,
     "cols": [
       "Weight",
@@ -38,6 +38,36 @@
       "CALC",
       "FAVC",
       "FAF"
+    ]
+  },
+  "f_classify": {
+    "units": 132,
+    "lr": 0.0035536496010331576,
+    "epoch": 150,
+    "batch": 32,
+    "val_acc": 55.84,
+    "n_calls": 60,
+    "cols": [
+      "FAF",
+      "CALC",
+      "TUE",
+      "FAVC",
+      "FCVC"
+    ]
+  },
+  "mutual_info": {
+    "units": 196,
+    "lr": 0.0004624100683467872,
+    "epoch": 80,
+    "batch": 32,
+    "val_acc": 75.08,
+    "n_calls": 60,
+    "cols": [
+      "Weight",
+      "FAF",
+      "SMOKE",
+      "FAVC",
+      "CALC"
     ]
   }
 }
