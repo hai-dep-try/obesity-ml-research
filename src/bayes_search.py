@@ -35,7 +35,7 @@ BEST_JSON = os.path.join("results", "bayes_best_params.json")
 SEED_GP = 42     # seed của Bayesian optimizer
 SEED_NN = 1      # seed huấn luyện mạng
 
-# Không gian tìm kiếm tham số theo bài báo Yagin et al.
+# Không gian tìm kiếm 
 SPACE = [
     Integer(16, 256, name="units"),                  # Giảm xuống mức vừa phải thay vì 5000
     Real(1e-4, 1e-2, prior="log-uniform", name="lr"),# Thu hẹp khoảng learning rate tối ưu

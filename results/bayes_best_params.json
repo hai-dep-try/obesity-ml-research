@@ -24,5 +24,20 @@
       "CALC",
       "MTRANS"
     ]
+  },
+  "chi2": {
+    "units": 3987,
+    "lr": 5.416754583247461e-05,
+    "epoch": 628,
+    "batch": 21,
+    "val_acc": 0.0,
+    "n_calls": 60,
+    "cols": [
+      "Weight",
+      "FCVC",
+      "CALC",
+      "FAVC",
+      "FAF"
+    ]
   }
 }
