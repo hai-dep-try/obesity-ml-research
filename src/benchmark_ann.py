@@ -21,4 +21,4 @@ for units in [30, 500, 2000, 5000]:
     t0 = time.time()
     train_and_eval(ALL16, {"units": units, "lr": 0.013, "epoch": 20, "batch": 16},
                    trv, tev)
-    print(f"units={units:>4}: {(time.time() - t0) / 20:.3f}s/epoch")
+    print(f"units={units:>4}: {(time.time() - t0) / 20:.3f}s/epoch")    
