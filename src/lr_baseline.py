@@ -28,8 +28,8 @@ MAPS = {
 def load(name):
     df = pd.read_csv(f"{SPLIT_DIR}/{name}.csv")
     for col, mp in MAPS.items():
-        if df[col].dtype == object:
-            df[col] = df[col].map(mp)
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            df[col] = df[col].astype(str).str.strip().map(mp)
     assert df[ALL16].isna().sum().sum() == 0, f"NaN trong {name}: kiểm tra giá trị lạ"
     return df
 
@@ -88,6 +88,9 @@ def run(feature_set, cols, d):
     return row, per_class
 
 if __name__ == "__main__":
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     os.makedirs(OUT_DIR, exist_ok=True)
     d = {n: load(n) for n in ["train", "test", "train_for_val", "test_for_val"]}
 

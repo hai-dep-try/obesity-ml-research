@@ -81,3 +81,33 @@ Việc tái lập thực nghiệm và phát hiện ra các điểm dị biệt n
 2. **Năng lực phản biện học thuật (Critical Thinking):** Chỉ ra được mâu thuẫn nội tại trong bảng số liệu của bài báo quốc tế (sự bất khả thi về mặt toán học giữa Recall 64.07% và Accuracy 94.07% trong phân loại đa lớp có trọng số).
 3. **Thấu hiểu bản chất thuật toán:** Giải thích được tại sao các mô hình dạng cây (CatBoost, Random Forest) lại ổn định và vượt trội trên dữ liệu dạng bảng, cũng như lý do các mô hình truyền thống (Naive Bayes, Logistic Regression) rất nhạy cảm với tiền xử lý và tham số hội tụ.
 4. **Xác nhận kết luận của bài báo:** Dù có những sai lệch ở các mô hình baseline do thiếu chi tiết cấu hình, kết luận cốt lõi của tác giả vẫn hoàn toàn chính xác: **CatBoost là mô hình tối ưu nhất (95.51%), có tính ổn định cao và đặc biệt phù hợp cho bài toán phân loại mức độ béo phì.**
+
+---
+
+## 4. Thực Nghiệm Mở Rộng: Đối Chứng XGBoost, Phân Tích Lỗi, Tương Quan & Phản Biện Luật BMI
+
+Để kiểm chứng sâu hơn năng lực của CatBoost khi đặt cạnh các mô hình mạnh khác ngoài bài báo gốc, nhóm thực hiện thêm 3 thí nghiệm chuẩn hóa (mã nguồn tại `src/train_xgboost.py` và `src/analyze_models.py`):
+
+### 4.1. Đối chứng XGBoost trên cùng Pipeline chuẩn
+| Mô hình | Accuracy (%) | Precision (%) | Recall (%) | F1-Weighted (%) | Số lỗi / 423 |
+|---|---:|---:|---:|---:|---:|
+| **CatBoost (Paper Params)** | **95.51** | 95.60 | 95.51 | 95.53 | 19 |
+| **XGBoost (Tuned GridSearchCV)** | **95.51** | 95.64 | 95.51 | **95.55** | 19 |
+| **XGBoost (HoTuAn Default)** | 94.56 | 94.71 | 94.56 | 94.61 | 23 |
+| **Soft Voting (CatBoost + XGBoost Tuned + LR)** | **96.45** | 96.57 | 96.45 | **96.48** | **15** |
+
+* **Nhận xét:** Khi dùng cấu hình mặc định (`n_estimators=100, lr=0.1, max_depth=6`), XGBoost đạt **94.56%** (nhỉnh hơn Random Forest 94.33%). Khi tối ưu qua Stratified 5-Fold CV (`lr=0.1, max_depth=4, n_estimators=200`), XGBoost đạt **95.51%** — cân bằng điểm Accuracy với CatBoost.
+
+### 4.2. Phân tích lỗi điển hình & Tương quan giữa các mô hình
+* **Quy luật lỗi ở ranh giới BMI = 25.0 (`Overweight_Level_I` $\leftrightarrow$ `Normal_Weight`):** Do dữ liệu không chứa cột BMI tường minh, cặp liền kề này là nguồn sai số lớn nhất ở mọi mô hình top đầu: chiếm **36.8%** tổng lỗi của CatBoost (7/19 ca), **50.0%** của Random Forest (12/24 ca), **51.7%** của Logistic Regression (15/29 ca), và **43.5%** của XGBoost HoTuAn (10/23 ca).
+* **Tương quan dự đoán & Khả năng bù lỗi:** `CatBoost` và `XGBoost_Tuned` đồng thuận **96.69%** (cùng sai nhiều ca giống nhau với $r_{\text{err}} = 0.6143$, khác nhau trên 14 mẫu và mỗi mô hình thắng đúng 7 mẫu). Ngược lại, `LogisticRegression` có tương quan lỗi thấp với các mô hình cây ($r_{\text{err}} = 0.3025$ với XGBoost và $0.3928$ với CatBoost). Vì sự đa dạng lỗi này, tổ hợp **Soft Voting (CatBoost + XGBoost + LogisticRegression)** giảm số lỗi xuống còn **15/423 (Accuracy 96.45%)**, vượt qua cả mức 95.98% trong bài báo gốc.
+
+### 4.3. Tại sao không dùng thẳng công thức $BMI = Weight / Height^2$? (Ablation Study)
+| Kịch bản thử nghiệm | Phạm vi | Accuracy (%) | F1-Score (%) | Số mẫu sai |
+|---|---|---:|---:|---:|
+| **CatBoost (Bỏ `Weight` & `Height`)** | Test ($N=423$) | **82.98** | 82.96 | 72 |
+| **Luật cứng BMI WHO ($W/H^2$)** | Full ($N=2111$) | **91.95** | 91.90 | 170 |
+| **CatBoost (Pipeline chuẩn)** | Test ($N=423$) | **95.51** | 95.53 | 19 |
+| **CatBoost (+ Đặc trưng `BMI`)** | Test ($N=423$) | **98.82** | 98.82 | 5 |
+
+* **Giải thích khoa học:** Việc áp công thức BMI chuẩn WHO lên toàn bộ tập dữ liệu thực tế chỉ đạt **91.95%** (sai **170/2,111 mẫu** — ví dụ bỏ sót 56 ca `Obesity_Type_III` có BMI dưới 40.0 và 62 ca `Overweight_Level_II` có BMI dưới 27.5). Nguyên nhân là thuật toán **SMOTE** nội suy tuyến tính trên các biến `Weight` và `Height`, không bảo toàn ngưỡng cắt phi tuyến $W/H^2$. Trong khi đó, mô hình ML học kết hợp đặc trưng hành vi (`FAVC`, `FCVC`, `FAF`, `Gender`) nên bù đắp được độ lệch biên (đạt **95.51%**), và ngay cả khi loại bỏ hoàn toàn `Weight` và `Height`, CatBoost vẫn đạt **82.98%** — chứng minh giá trị độc lập của dữ liệu thói quen sinh hoạt trong dự báo béo phì.

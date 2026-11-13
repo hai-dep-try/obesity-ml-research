@@ -1,0 +1,6 @@
+experiment,description,eval_scope,accuracy_pct,f1_pct,n_errors
+CatBoost (No Weight & Height),"14 features: eating habits, physical activity, age, gender only",Test (N=423),82.98,82.96,72
+WHO BMI Rule (Test Set),Deterministic cutoffs on Weight/Height^2 (no ML),Test (N=423),92.43,92.32,32
+WHO BMI Rule (Full Dataset),Deterministic cutoffs on Weight/Height^2 across all rows,Full (N=2111),91.95,91.9,170
+CatBoost (Standard Pipeline),"16 features (Maulana et al. 2024 setup, no explicit BMI)",Test (N=423),95.51,95.53,19
+CatBoost (+ Explicit BMI),16 features + engineered BMI = Weight/Height^2,Test (N=423),98.82,98.82,5

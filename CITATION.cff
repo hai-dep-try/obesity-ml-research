@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use or reference this project, please cite it as below."
+title: "Nghiên cứu và Thực nghiệm các Phương pháp Học máy trong Dự đoán Mức độ Béo phì"
+abstract: >-
+  Mã nguồn tái lập thực nghiệm bài báo khoa học quốc tế Maulana et al. (2024)
+  và khảo sát các mô hình học máy (CatBoost, Random Forest, Logistic Regression,
+  KNN, Naive Bayes, Mạng nơ-ron ANN tối ưu Bayes) trên tập dữ liệu Kaggle Obesity Levels.
+  Môn học Trí tuệ Nhân tạo (Research Track), Trường Đại học Công nghệ - ĐHQGHN.
+version: 1.0.0
+date-released: "2026-11-10"
+license: MIT
+repository-code: "https://github.com/hai-dep-try/obesity-ml-research"
+authors:
+  - name: "Nhóm 10"
+    affiliation: "Trường Đại học Công nghệ, Đại học Quốc gia Hà Nội (VNU-UET)"
+keywords:
+  - machine-learning
+  - catboost
+  - obesity-levels
+  - reproducible-research
+  - tabular-data
+  - artificial-intelligence
