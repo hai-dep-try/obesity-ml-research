@@ -36,13 +36,13 @@ def prepare(train_df, eval_df, cols):
 
     # Bắt chính xác TẤT CẢ cột không phải số (string, object, category...)
     cat_cols = X_tr.select_dtypes(exclude=[np.number]).columns.tolist()
-    
+
     if cat_cols:
         oe = OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)
         # Ép kiểu rõ ràng sang float sau khi encode để tránh pandas giữ kiểu string/object
         encoded_tr = oe.fit_transform(X_tr[cat_cols])
         encoded_ev = oe.transform(X_ev[cat_cols])
-        
+
         for idx, col in enumerate(cat_cols):
             X_tr[col] = encoded_tr[:, idx].astype(float)
             X_ev[col] = encoded_ev[:, idx].astype(float)
@@ -51,7 +51,7 @@ def prepare(train_df, eval_df, cols):
     X_tr_values = X_tr.astype(float).values
     X_ev_values = X_ev.astype(float).values
 
-    # Chuẩn hóa StandardScaler
+    # Chuẩn hóa StandardScaler (fit chỉ trên train)
     scaler = StandardScaler().fit(X_tr_values)
     X_tr_scaled = scaler.transform(X_tr_values)
     X_ev_scaled = scaler.transform(X_ev_values)
@@ -70,7 +70,7 @@ def train_and_eval(cols, params, train_df, eval_df, seed=1, verbose=0):
     tf.keras.utils.set_random_seed(seed)
 
     X_tr, y_tr, X_ev, y_ev, classes = prepare(train_df, eval_df, cols)
-    
+
     model = build_model(X_tr.shape[1], int(params["units"]), float(params["lr"]))
     model.fit(
         X_tr, to_categorical(y_tr, N_CLASSES),
@@ -83,7 +83,7 @@ def train_and_eval(cols, params, train_df, eval_df, seed=1, verbose=0):
     proba = model.predict(X_ev, verbose=0)
     y_pred = proba.argmax(axis=1)
     acc = float(accuracy_score(y_ev, y_pred))
-    
+
     return {
         "acc": acc,
         "proba": proba,
@@ -93,3 +93,17 @@ def train_and_eval(cols, params, train_df, eval_df, seed=1, verbose=0):
     }
 
 
+if __name__ == "__main__":
+    trv, tev = load("train_for_val"), load("test_for_val")
+
+    # In kiến trúc mạng
+    m = build_model(len(ALL16), 30, 0.013)
+    m.summary()
+
+    # Smoke test: ít epoch để chạy nhanh
+    params = {"units": 30, "lr": 0.013, "epoch": 50, "batch": 16}
+    t0 = time.time()
+    r = train_and_eval(ALL16, params, trv, tev, seed=1)
+    dt = time.time() - t0
+    print(f"val acc = {r['acc']*100:.2f}% | thời gian = {dt:.1f}s "
+          f"| ~{dt/params['epoch']:.3f}s/epoch")
