@@ -63,6 +63,13 @@ def _load_best_params() -> dict:
     }
 
 
+def _load_knn_tuned_params() -> dict:
+    knn_path = RESULTS_DIR / "knn_best_params.json"
+    if knn_path.exists():
+        return json.loads(knn_path.read_text(encoding="utf-8"))
+    return {"metric": "manhattan", "n_neighbors": 3, "p": 1, "weights": "distance"}
+
+
 def run_error_and_correlation_analysis() -> dict:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
@@ -81,6 +88,7 @@ def run_error_and_correlation_analysis() -> dict:
     rf_params = bp.get("RandomForest", {"n_estimators": 200, "max_depth": 20, "min_samples_split": 2})
     lr_params = bp.get("LogisticRegression", {"C": 10.0, "solver": "lbfgs"})
     knn_params = bp.get("KNN", {"n_neighbors": 3, "weights": "distance"})
+    knn_tuned_params = _load_knn_tuned_params()
     nb_params = bp.get("NaiveBayes", {"var_smoothing": 1e-7})
 
     models = {
@@ -118,6 +126,7 @@ def run_error_and_correlation_analysis() -> dict:
             random_state=RANDOM_STATE,
             **lr_params,
         ),
+        "KNN_Tuned": KNeighborsClassifier(**knn_tuned_params),
         "KNN": KNeighborsClassifier(**knn_params),
         "NaiveBayes": GaussianNB(**nb_params),
     }
@@ -139,7 +148,7 @@ def run_error_and_correlation_analysis() -> dict:
         row = metrics_to_percent_row(name, m)
         n_err = int((pred != y_test).sum())
         row["n_errors"] = n_err
-        paper_key = name
+        paper_key = "KNN" if name == "KNN_Tuned" else name
         row["paper_accuracy_pct"] = PAPER_ACC.get(paper_key)
         row["delta_accuracy_pp"] = (
             round(row["accuracy_pct"] - row["paper_accuracy_pct"], 2)
@@ -234,8 +243,18 @@ def run_error_and_correlation_analysis() -> dict:
     plt.close(fig)
 
     # Correlation heatmaps figure (Agreement % & Error Correlation)
-    short_names = ["CatBoost", "XGB Tuned", "XGB HoTuAn", "RandomForest", "LogisticReg", "KNN", "NaiveBayes"]
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+    short_map = {
+        "CatBoost": "CatBoost",
+        "XGBoost_Tuned": "XGB Tuned",
+        "XGBoost_HoTuAn": "XGB HoTuAn",
+        "RandomForest": "RandomForest",
+        "LogisticRegression": "LogisticReg",
+        "KNN_Tuned": "KNN Tuned",
+        "KNN": "KNN Base",
+        "NaiveBayes": "NaiveBayes",
+    }
+    short_names = [short_map.get(m, m) for m in model_names]
+    fig, axes = plt.subplots(1, 2, figsize=(15.5, 6.2))
 
     sns.heatmap(
         agree_df.values,

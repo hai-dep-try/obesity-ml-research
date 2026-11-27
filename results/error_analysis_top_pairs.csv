@@ -29,6 +29,12 @@ LogisticRegression,Obesity_Type_I,Overweight_Level_II,3,10.34
 LogisticRegression,Normal_Weight,Insufficient_Weight,3,10.34
 LogisticRegression,Overweight_Level_II,Overweight_Level_I,2,6.9
 LogisticRegression,Overweight_Level_II,Obesity_Type_I,2,6.9
+KNN_Tuned,Normal_Weight,Overweight_Level_I,8,15.38
+KNN_Tuned,Normal_Weight,Insufficient_Weight,8,15.38
+KNN_Tuned,Overweight_Level_I,Normal_Weight,7,13.46
+KNN_Tuned,Normal_Weight,Overweight_Level_II,4,7.69
+KNN_Tuned,Normal_Weight,Obesity_Type_I,4,7.69
+KNN_Tuned,Overweight_Level_II,Obesity_Type_I,3,5.77
 KNN,Normal_Weight,Insufficient_Weight,12,18.18
 KNN,Normal_Weight,Overweight_Level_I,8,12.12
 KNN,Overweight_Level_I,Normal_Weight,6,9.09

@@ -8,8 +8,8 @@
 
 > **Dự án Nghiên cứu Giữa kỳ — Môn học Trí tuệ Nhân tạo (Research Track)**  
 > **Đơn vị:** Khoa Công nghệ Thông tin, Trường Đại học Công nghệ — Đại học Quốc gia Hà Nội (VNU-UET)  
-> **Nhóm thực hiện:** Nhóm 10  
-> **Nhiệm vụ trọng tâm:** Tái lập độc lập công trình khoa học quốc tế của **Maulana et al. (2024)**, so sánh chuyên sâu mô hình **CatBoost** với các mô hình baseline trên CPU cục bộ, đồng thời thực hiện phản biện học thuật và khảo sát mở rộng.
+> **Nhóm thực hiện:** Nhóm 1  
+> **Nhiệm vụ trọng tâm:** Tái lập độc lập và phản biện hai công trình khoa học quốc tế của **Maulana et al. (2024)** (*CatBoost & Baselines*) và **Yagin et al. (2023)** (*ANN tối ưu Bayesian & Lựa chọn đặc trưng*) trên cùng bộ dữ liệu **2.111 mẫu**, kèm đối chứng **XGBoost**, **KNN Tuned**, **Soft Voting** và **Ablation Study**.
 
 ---
 
@@ -43,11 +43,12 @@ Cấu trúc dự án được chuẩn hóa theo phong cách nghiên cứu tái l
 
 | Thư mục / Tệp | Vai trò & Nội dung chi tiết |
 | :--- | :--- |
-| [`src/`](src/) | Toàn bộ mã nguồn cốt lõi tái sử dụng: `preprocess.py`, `train.py`, `train_xgboost.py`, `analyze_models.py`, `select_features.py`, `evaluate.py`, `download_data.py` |
+| [`src/`](src/) | Toàn bộ mã nguồn cốt lõi tái sử dụng: `preprocess.py`, `train.py`, `train_xgboost.py`, `train_knn.py`, `analyze_models.py`, `select_features.py`, `lr_baseline.py`, `ann_model.py`, `bayes_search.py`, `run_trials.py`, `metrics_ann.py`, `evaluate.py`, `download_data.py` |
 | [`data/`](data/) | Dữ liệu cục bộ (được `.gitignore` bảo vệ, tự động tải qua script; xem [`data/README.md`](data/README.md)) |
 | [`notebooks/`](notebooks/) | Các sổ tay Jupyter chạy theo quy trình: `01_eda` $\rightarrow$ `02_baseline` $\rightarrow$ `03_main_model` |
 | [`results/`](results/) | Bảng số liệu thực nghiệm (`.csv`, `.json`) và các biểu đồ phân tích trực quan ([`results/figures/`](results/figures/)) |
 | [`reports/`](reports/) | Các báo cáo nghiên cứu markdown: [`san_pham_1_khao_sat.md`](reports/san_pham_1_khao_sat.md), [`san_pham_2_nghien_cuu.md`](reports/san_pham_2_nghien_cuu.md), [`ket_luan_sau_khi_thuc_nghiem_tu_bai_bao_nay.md`](reports/ket_luan_sau_khi_thuc_nghiem_tu_bai_bao_nay.md) |
+| `Sản phẩm 1–2 (.pdf)` | Hai báo cáo bài báo khoa học biên dịch bằng LuaLaTeX ([Sản phẩm 1](Sản%20phẩm%201%20–%20Báo%20cáo%20khảo%20sát%20và%20lựa%20chọn%20phương%20pháp.pdf), [Sản phẩm 2](Sản%20phẩm%202%20-%20Báo%20cáo%20phần%20Thực%20nghiệm.pdf)) |
 | [`ai_log/`](ai_log/) | **Sản phẩm 3:** Nhật ký minh bạch hóa việc sử dụng AI theo quy định của môn học ([`ai_log/README.md`](ai_log/README.md)) |
 | [`docs/`](docs/) | Tài liệu đề bài (`AI_Midterm_Project.pdf`) và các bài báo khoa học tham chiếu gốc (`.pdf`) |
 | `CITATION.cff` | Tệp siêu dữ liệu trích dẫn chuẩn hóa của dự án |
@@ -91,8 +92,18 @@ python -m src.train
 # Chạy đối chứng XGBoost (cấu hình của HoTuAn & GridSearchCV)
 python -m src.train_xgboost
 
+# Chạy tối ưu KNN (Đặng Đình Đức — GridSearchCV 5-Fold)
+python -m src.train_knn
+
 # Phân tích lỗi, độ tương quan mô hình & thí nghiệm phản biện BMI (Ablation Study)
 python -m src.analyze_models
+
+# (Tùy chọn) Tái lập nhánh ANN + Bayesian Optimization (cần cài thêm requirements-ann.txt)
+python -m src.select_features --mode paper
+python src/lr_baseline.py
+python src/bayes_search.py --set full --n_calls 60
+python src/run_trials.py
+python src/metrics_ann.py --set full
 ```
 
 > [!IMPORTANT]
@@ -117,7 +128,8 @@ Kết quả thực nghiệm độc lập trên cùng tập kiểm thử chuẩn 
 | **XGBoost (HoTuAn)** *(Mở rộng)* | — | 94.56 | — | 94.56 | 94.61 | 23 | Cấu hình mặc định (`lr=0.1, depth=6, n=100`) |
 | **Random Forest** | 95.04 | 94.33 | −0.71 | 94.33 | 94.44 | 24 | Bám sát bài báo, họ cây xử lý dữ liệu bảng rất tốt |
 | **Logistic Regression** | 65.48 | 93.14 | **+27.66** | 93.14 | 93.10 | 29 | Hội tụ khi `max_iter=2000` và scale chuẩn Z-score |
-| **KNN** | 88.18 | 84.40 | −3.78 | 84.40 | 83.52 | 66 | Khoảng cách bị nhiễu bởi biến One-Hot |
+| **KNN (Tuned — Đặng Đình Đức)** *(Mở rộng)* | 88.18 | **87.71** | −0.47 | **87.71** | **87.24** | **52** | GridSearchCV (`manhattan, k=3, weights=distance`, CV=87.80%) |
+| **KNN (Baseline Pipeline)** | 88.18 | 84.40 | −3.78 | 84.40 | 83.52 | 66 | Khoảng cách Euclidean bị nhiễu bởi biến One-Hot |
 | **Naive Bayes** | ⚠️ 94.07 | 52.25 | **−41.82** | 52.25 | 48.53 | 202 | Vi phạm giả định độc lập & lỗi Typo trong bài báo |
 | **Soft Voting (CB + XGB + LR)** *(Thử nghiệm)* | — | **96.45** | — | **96.45** | **96.48** | **15** | Kết hợp mô hình cây + tuyến tính bù lỗi chéo |
 
@@ -176,35 +188,45 @@ Nhóm thực hiện kiểm chứng trực tiếp bằng thực nghiệm đối c
 
 ## 🧩 Khảo Sát & Nghiên Cứu Mở Rộng
 
-<details>
-<summary><b>1. Nghiên cứu Mạng Nơ-ron Nhân tạo (ANN) tối ưu hóa Bayes — Click để xem</b></summary>
+<details open>
+<summary><b>1. Nghiên cứu Mạng Nơ-ron Nhân tạo (ANN) tối ưu hóa Bayes (Yagin et al., 2023) — Click để thu gọn</b></summary>
 
-Nhóm tiến hành khảo sát mở rộng mô hình Deep Learning theo công trình của **Yagin et al. (2023)** (*Applied Sciences*):
+Nhóm tiến hành tái lập và phản biện công trình của **Yagin et al. (2023)** (*Applied Sciences*) trên cùng bộ dữ liệu **2.111 mẫu** theo chuẩn chia **Stratified 75:25** (`1.583 Train / 528 Test`, kèm `1.266 / 317` để chọn siêu tham số; mã hóa 16 biến gốc):
 * **Kiến trúc mạng:** 3 tầng gồm `Dense(ReLU)` $\rightarrow$ `BatchNormalization` $\rightarrow$ `Softmax(7 lớp)`.
-* **Tối ưu siêu tham số Bayesian:** Sử dụng thuật toán Gaussian Process (`skopt.gp_minimize`) tối ưu đồng thời số neuron ẩn (`units`), tốc độ học (`lr`), số `epoch` và `batch_size`.
-* **Tuyển chọn 5 đặc trưng:** Chạy `python -m src.select_features --mode paper` để sinh `data/splits/top5_features.json` cùng các tập CSV đã lọc (`chi2`, `f_classify`, `mutual_info`).
-* Mã nguồn cốt lõi trên nhánh `main`: [`src/select_features.py`](src/select_features.py), [`src/lr_baseline.py`](src/lr_baseline.py), [`src/ann_model.py`](src/ann_model.py), [`src/benchmark_ann.py`](src/benchmark_ann.py), [`src/check_ann.py`](src/check_ann.py) (phần script `bayes_search.py` & `metrics_ann.py` lưu trên nhánh nghiên cứu `model-optimization-lead`).
+* **Tối ưu siêu tham số Bayesian:** Sử dụng thuật toán Gaussian Process (`skopt.gp_minimize`, `n_calls=60`) tối ưu đồng thời số neuron ẩn (`units`), tốc độ học (`lr`), số `epoch` và `batch_size`, sau đó đánh giá lặp **10 trials** (`seed 1..10`) trên tập `test` ($N=528$).
+* **Kết quả thực nghiệm (10 trials ANN vs. Logistic Regression đối chứng vs. Bài báo gốc):**
+
+| Bộ đặc trưng | ANN Accuracy (TB $\pm$ SD) | ANN Brier | LR Accuracy | LR Brier | Yagin et al. (2023) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Full (16 đặc trưng)** | 90.49% $\pm$ 0.54% | 0.1431 | **96.02%** | **0.0654** | 93.06% / 0.094 |
+| **Chi-Square (Top 5)** | **75.68%** $\pm$ 0.83% | 0.3307 | 67.05% | 0.4285 | 89.04% / 0.147 |
+| **Mutual Info (Top 5)** | **70.25%** $\pm$ 0.98% | 0.4067 | 58.14% | 0.5345 | 86.52% / 0.194 |
+| **F-Classify (Top 5)** | **51.69%** $\pm$ 1.38% | 0.6405 | 34.66% | 0.7568 | 90.32% / 0.122 |
+
+* **Phản biện F-Classify:** 5 biến `F-Classify` trong Bảng 5 bài báo (`FAF, CALC, TUE, FAVC, FCVC`) thực chất là 5 biến có điểm F **thấp nhất**; khi tính lại `SelectKBest` trên `train_for_val` (`results/feature_selection_scores.csv`), `Weight` luôn đứng đầu bảng.
+* Mã nguồn hợp nhất trên `main`: [`src/select_features.py`](src/select_features.py), [`src/lr_baseline.py`](src/lr_baseline.py), [`src/ann_model.py`](src/ann_model.py), [`src/bayes_search.py`](src/bayes_search.py), [`src/run_trials.py`](src/run_trials.py), [`src/metrics_ann.py`](src/metrics_ann.py), [`src/benchmark_ann.py`](src/benchmark_ann.py), [`src/check_ann.py`](src/check_ann.py). *(Lưu ý: không gộp trực tiếp accuracy của bảng 75:25 $N=528$ với bảng 80:20 $N=423$ do khác tập test và cách mã hóa.)*
 </details>
 
 <details>
-<summary><b>2. Thử nghiệm đối chứng XGBoost (HoTuAn) — Click để xem</b></summary>
+<summary><b>2. Thử nghiệm đối chứng XGBoost (HoTuAn) & KNN Tuned (Đặng Đình Đức) — Click để xem</b></summary>
 
-* Đã chuẩn hóa script của HoTuAn từ nhánh `xgboost` vào [`src/train_xgboost.py`](src/train_xgboost.py) sử dụng chung pipeline [`src/preprocess.py`](src/preprocess.py) và [`src/evaluate.py`](src/evaluate.py).
-* Kết quả lưu tại [`results/xgboost_results.csv`](results/xgboost_results.csv) và [`results/figures/confusion_matrix_xgboost.png`](results/figures/confusion_matrix_xgboost.png) (`XGBoost_HoTuAn`: **94.56%**, `XGBoost_Tuned`: **95.51%**).
+* Đã chuẩn hóa script của HoTuAn từ nhánh `xgboost` vào [`src/train_xgboost.py`](src/train_xgboost.py) sử dụng chung pipeline [`src/preprocess.py`](src/preprocess.py) và [`src/evaluate.py`](src/evaluate.py) (`XGBoost_HoTuAn`: **94.56%**, `XGBoost_Tuned`: **95.51%**).
+* Đã tích hợp và hợp nhất module KNN của Đặng Đình Đức ([`src/train_knn.py`](src/train_knn.py), [`results/knn_results.csv`](results/knn_results.csv)) vào bảng so sánh mở rộng [`results/extended_comparison.csv`](results/extended_comparison.csv) (`KNN_Tuned`: **87.71%**, CV **87.80%**).
 </details>
 
 ---
 
 ## 👥 Nhóm Tác Giả & Phân Công (Authors & Affiliations)
 
-**Nhóm 10 — Môn học Trí tuệ Nhân tạo (Research Track)**  
+**Nhóm 1 — Môn học Trí tuệ Nhân tạo (Research Track)**  
 *Khoa Công nghệ Thông tin, Trường Đại học Công nghệ — Đại học Quốc gia Hà Nội (VNU-UET)*
 
-* **Thành viên nhóm:** Nhóm 10 ([`@hai-dep-try`](https://github.com/hai-dep-try), [`@HoTuAn2007`](https://github.com/HoTuAn2007), [`@chử minh`](https://github.com/chuducminnh))
+* **Thành viên nhóm:** Nhóm 1 ([`@hai-dep-try`](https://github.com/hai-dep-try) — Ninh Đức Hải, [`@chử minh`](https://github.com/chuducminnh) — Chử Đức Minh, [`@HoTuAn2007`](https://github.com/HoTuAn2007) — Hồ Tú An, Đặng Đình Đức)
 * **Phân công nghiên cứu:**
-  * Xây dựng pipeline tiền xử lý, tái lập CatBoost & các mô hình baseline, phản biện học thuật bài báo Maulana et al. (2024).
-  * Khảo sát mô hình Deep Learning ANN & quy trình tối ưu Bayes theo Yagin et al. (2023).
-  * Thử nghiệm mô hình XGBoost đối chứng & tổng hợp hệ thống báo cáo Word/Markdown.
+  * **Ninh Đức Hải:** Xây dựng kiến trúc repo & pipeline tiền xử lý, tái lập **CatBoost & 4 baseline** (Maulana et al., 2024), chuẩn hóa **XGBoost**, **Soft Voting**, **BMI Ablation**, phân tích tương quan lỗi, phản biện toán học Naive Bayes/LR, biên soạn báo cáo LaTeX & `ai_log/`.
+  * **Chử Đức Minh:** Khảo sát & triển khai mạng **ANN 3 tầng + Bayesian Optimization** và đối chứng **Logistic Regression** (Yagin et al., 2023), hoàn thiện 10-trial metrics & phản biện `F-Classify`.
+  * **Hồ Tú An:** Biên soạn khảo sát ban đầu (Sản phẩm 1), thử nghiệm **XGBoost** (`HoTuAn` params), tham gia tinh chỉnh `prepare()` và chạy **Bayesian Optimization** cho 3 bộ Top-5.
+  * **Đặng Đình Đức:** Xây dựng, tinh chỉnh `GridSearchCV` 5-Fold cho mô hình **KNN Tuned** (`manhattan, k=3, distance`, đạt **87.71%**) và xuất bộ kết quả chuẩn hóa.
 
 ---
 
